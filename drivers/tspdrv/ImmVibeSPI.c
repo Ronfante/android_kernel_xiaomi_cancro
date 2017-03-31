@@ -441,7 +441,7 @@
 
 #define STANDBY_WAKE_DELAY	1
 
-#define REAL_TIME_PLAYBACK_CALIBRATION_STRENGTH 0x3F /* 100% of rated voltage (closed loop) */
+#define REAL_TIME_PLAYBACK_CALIBRATION_STRENGTH 0x5F /* 100% of rated voltage (closed loop) */
 
 #define MAX_REVISION_STRING_SIZE 10
 
@@ -774,7 +774,7 @@ static ssize_t pwmvalue_store(struct device *dev,
 {
 	int vs = 0;
         sscanf(buf, "%d ",&vs);
-        if (vs < 0 || vs > 127) vs = 85;
+        if (vs < 0 || vs > 127) vs = 78;
 	vibe_strength = vs;
         return count;
 }
