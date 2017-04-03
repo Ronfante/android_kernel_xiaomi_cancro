@@ -644,14 +644,11 @@ EXPORT_SYMBOL_GPL(machine_check_poll);
 static int mce_no_way_out(struct mce *m, char **msg)
 {
 	int i;
-	char *tmp;
 
 	for (i = 0; i < banks; i++) {
 		m->status = mce_rdmsrl(MSR_IA32_MCx_STATUS(i));
-		if (mce_severity(m, tolerant, &tmp) >= MCE_PANIC_SEVERITY) {
-			*msg = tmp;
+		if (mce_severity(m, tolerant, msg) >= MCE_PANIC_SEVERITY)
 			return 1;
-		}
 	}
 	return 0;
 }
@@ -1175,7 +1172,6 @@ void mce_notify_process(void)
 {
 	unsigned long pfn;
 	struct mce_info *mi = mce_find_info();
-	int flags = MF_ACTION_REQUIRED;
 
 	if (!mi)
 		mce_panic("Lost physical address for unconsumed uncorrectable error", NULL, NULL);
@@ -1190,9 +1186,8 @@ void mce_notify_process(void)
 	 * doomed. We still need to mark the page as poisoned and alert any
 	 * other users of the page.
 	 */
-	if (!mi->restartable)
-		flags |= MF_MUST_KILL;
-	if (memory_failure(pfn, MCE_VECTOR, flags) < 0) {
+	if (memory_failure(pfn, MCE_VECTOR, MF_ACTION_REQUIRED) < 0 ||
+			   mi->restartable == 0) {
 		pr_err("Memory error not recovered");
 		force_sig(SIGBUS, current);
 	}

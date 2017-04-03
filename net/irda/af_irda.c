@@ -1109,9 +1109,6 @@ static int irda_create(struct net *net, struct socket *sock, int protocol,
 
 	IRDA_DEBUG(2, "%s()\n", __func__);
 
-	if (protocol < 0 || protocol > SK_PROTOCOL_MAX)
-		return -EINVAL;
-
 	if (net != &init_net)
 		return -EAFNOSUPPORT;
 
@@ -2588,10 +2585,8 @@ bed:
 				    NULL, NULL, NULL);
 
 		/* Check if the we got some results */
-		if (!self->cachedaddr) {
-			err = -EAGAIN;		/* Didn't find any devices */
-			goto out;
-		}
+		if (!self->cachedaddr)
+			return -EAGAIN;		/* Didn't find any devices */
 		daddr = self->cachedaddr;
 		/* Cleanup */
 		self->cachedaddr = 0;
